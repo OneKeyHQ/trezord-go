@@ -16,8 +16,8 @@ VERSION=$(cat /release/build/VERSION)
 
 INSTALLER=trezor-bridge-$VERSION.pkg
 
-mkdir -p flat-uninstall/uninstall.pkg/payload
-mkdir -p flat-install/install.pkg/payload/Applications/Utilities/TREZOR\ Bridge
+mkdir -p flat-uninstall/uninstall.pkg/payload-prev
+mkdir -p flat-install/install.pkg/payload-prev/Applications/Utilities/TREZOR\ Bridge
 
 # first, make uninstaller
 
@@ -25,15 +25,15 @@ rm -rf /release/build/flat-uninstall
 cp -r /release/flat-uninstall /release/build
 cd /release/build/flat-uninstall/uninstall.pkg
 
-cd scripts
+cd scripts-prev
 find . | cpio -o --format odc --owner 0:80 | gzip -c > ../Scripts
 cd ..
-rm -r scripts
-cd payload
+rm -r scripts-prev
+cd payload-prev
 find . | cpio -o --format odc --owner 0:80 | gzip -c > ../Payload
 cd ..
-mkbom -u 0 -g 80 payload/ Bom
-rm -r payload
+mkbom -u 0 -g 80 payload-prev/ Bom
+rm -r payload-prev
 cd ..
 sed -i s/VERSION/$VERSION/g Distribution
 sed -i s/VERSION/$VERSION/g uninstall.pkg/PackageInfo
@@ -48,11 +48,11 @@ rm -rf /release/build/flat-install
 
 cp -r /release/flat-install /release/build
 cd /release/build/flat-install/install.pkg
-cd scripts
+cd scripts-prev
 find . | cpio -o --format odc --owner 0:80 | gzip -c > ../Scripts
 cd ..
-rm -r scripts
-cd payload
+rm -r scripts-prev
+cd payload-prev
 
 cp /release/build/trezord Applications/Utilities/TREZOR\ Bridge/
 cp ../../../uninstall.pkg Applications/Utilities/TREZOR\ Bridge/
@@ -62,9 +62,9 @@ KBYTES=$(du -k -s . | cut -f 1)
 
 find . | cpio -o --format odc --owner 0:80 | gzip -c > ../Payload
 cd ..
-mkbom -u 0 -g 80 payload/ Bom
+mkbom -u 0 -g 80 payload-prev/ Bom
 
-rm -r payload
+rm -r payload-prev
 cd ..
 sed -i s/VERSION/$VERSION/g Distribution
 sed -i s/KBYTES/$KBYTES/g Distribution
