@@ -1,0 +1,30 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+on:
+  push:
+    branches: [ v2.0.27-onekey ]
+  pull_request:
+    branches: [ v2.0.27-onekey ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - uses: docker-practice/actions-setup-docker@master
+        with:
+          docker_channel: nightly
+          docker_nightly_version: snapshot-20201008
+      - run: |
+          set -x
+
+          docker version
+
+          docker run --rm hello-world
