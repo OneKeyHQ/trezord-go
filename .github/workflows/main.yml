@@ -16,18 +16,15 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: '^1.13.1'
-      - run: |
-          go version
-          go get github.com/karalabe/xgo
-          xgo version
+      - run: go version
       - uses: docker-practice/actions-setup-docker@master
         with:
           docker_channel: nightly
           docker_nightly_version: snapshot-20201008
-      - run: |
-          docker version
-          docker pull karalabe/xgo-latest
-      - run: |
-          cd release
-          make all
+      - run: docker version
+      - run: go get github.com/karalabe/xgo
+      - run: docker pull karalabe/xgo-latest
+      - run: xgo version
+      - run: cd release
+      - run: make all
 
