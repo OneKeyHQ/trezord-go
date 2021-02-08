@@ -13,6 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.1'
+      - run: |
+          go version
+          go get github.com/karalabe/xgo
+          xgo version
       - uses: docker-practice/actions-setup-docker@master
         with:
           docker_channel: nightly
@@ -20,15 +27,6 @@ jobs:
       - run: |
           docker version
           docker pull karalabe/xgo-latest
-      - uses: actions/setup-go@v2
-        with:
-          go-version: '^1.13.1'
-        env:
-          GOPATH: $HOME
-      - run: |
-          go version
-          go get github.com/karalabe/xgo
-          xgo version
       - run: |
           cd release
           make all
