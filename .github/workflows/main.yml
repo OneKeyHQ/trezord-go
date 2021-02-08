@@ -24,7 +24,7 @@ jobs:
       - run: docker version
       - run: go get github.com/karalabe/xgo
       - run: docker pull karalabe/xgo-latest
-      - run: xgo version
+      - run: xgo -v
       - run: cd release
       - run: make all
 
