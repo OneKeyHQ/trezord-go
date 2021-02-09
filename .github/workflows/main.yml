@@ -24,5 +24,9 @@ jobs:
       - run: docker version
       - run: go get github.com/karalabe/xgo
       - run: docker pull karalabe/xgo-latest
-      - run: cd release && GOPATH=~/go make all
+      - run: |
+          cd ~/go/src
+          git clone https://github.com/OneKeyHQ/onekey-bridge trezord-go
+          cd trezord-go/release
+          GOPATH=~/go make all
 
