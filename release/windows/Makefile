@@ -34,18 +34,18 @@ clean:
 
 .docker-image: Dockerfile
 	$(info Preparing docker image ...)
-	docker build -t $(IMAGETAG) .
+	docker build -m 4000m -t $(IMAGETAG) .
 
 shell: .docker-image
 	docker run -i -t $(VOL_MOUNT) $(IMAGETAG) /bin/bash
 
 .wdi: Dockerfile.wdi_driver
 	$(info Building WDI driver installer in docker)
-	docker build -t $(WDI_IMAGETAG) -f Dockerfile.wdi_driver .
+	docker build -m 4000m -t $(WDI_IMAGETAG) -f Dockerfile.wdi_driver .
 	docker run -i -t $(WDI_VOL_MOUNT) $(WDI_IMAGETAG) /bin/bash -c 'cp wdi-simple-* /release/build'
 
 .devcon:
 	$(info Building devcon in docker)
-	docker build -t $(DEVCON_IMAGETAG) -f Dockerfile.devcon .
+	docker build -m 4000m -t $(DEVCON_IMAGETAG) -f Dockerfile.devcon .
 	docker run -i -t $(DEVCON_VOL_MOUNT) $(DEVCON_IMAGETAG) /bin/bash -c 'cp /devcon/build-i686/devcon.exe /release/build/devcon-32b.exe'
 	docker run -i -t $(DEVCON_VOL_MOUNT) $(DEVCON_IMAGETAG) /bin/bash -c 'cp /devcon/build-x86_64/devcon.exe /release/build/devcon-64b.exe'
