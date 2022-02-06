@@ -37,8 +37,9 @@ status: [spec](https://w3c.github.io/webappsec-secure-contexts/#is-origin-trustw
 onekey-bridge requires go >= 1.6
 
 ```
-go get github.com/OneKeyHQ/onekey-bridge
-go build github.com/OneKeyHQ/onekey-bridge
+go clean
+go get -u github.com/OneKeyHQ/onekey-bridge
+go build -a github.com/OneKeyHQ/onekey-bridge
 ./onekey-bridge -h
 ```
 
