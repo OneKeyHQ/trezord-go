@@ -36,6 +36,15 @@ status: [spec](https://w3c.github.io/webappsec-secure-contexts/#is-origin-trustw
 
 onekey-bridge requires go >= 1.6
 
+*Note:*
+
+If you are new to Go and you are confused how come you should not clone the repository yourself, this is
+indeed the Go way. If you need to modify the code you can simply `cd` into the directory
+(`$GOPATH/src/github.com/OneKeyHQ/onekey-bridge`) and do whatever you please. Running `go build` inside that
+directory will produce a new executable at the same place. Running
+`go build github.com/OneKeyHQ/onekey-bridge` will produce a new executable in `$GOPATH/bin`. Both are built
+from your local copy in `$GOPATH/src`.
+
 ```
 go clean
 go get -u github.com/OneKeyHQ/onekey-bridge
