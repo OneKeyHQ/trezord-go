@@ -1,4 +1,4 @@
-// +build linux freebsd openbsd
+// +build linux freebsd
 
 // shim for linux and freebsd so that onekey.go builds
 

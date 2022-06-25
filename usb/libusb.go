@@ -416,12 +416,10 @@ func (b *LibUSB) identify(dev lowlevel.Device) string {
 type LibUSBDevice struct {
 	dev lowlevel.Device_Handle
 
-	closed           int32 // atomic
-	normalReadMutex  sync.Mutex
-	normalWriteMutex sync.Mutex
-	debugReadMutex   sync.Mutex
-	debugWriteMutex  sync.Mutex
-	// two interrupt_transfers should not happen at the same time on the same endpoint
+	closed              int32 // atomic
+	normalTransferMutex sync.Mutex
+	debugTransferMutex  sync.Mutex
+	// two interrupt_transfers should not happen at the same time
 
 	cancel bool
 	attach bool
@@ -481,15 +479,29 @@ func (d *LibUSBDevice) Close(disconnected bool) error {
 	return nil
 }
 
+func (d *LibUSBDevice) transferMutexLock(debug bool) {
+	if debug {
+		d.debugTransferMutex.Lock()
+	} else {
+		d.normalTransferMutex.Lock()
+	}
+}
+
+func (d *LibUSBDevice) transferMutexUnlock(debug bool) {
+	if debug {
+		d.debugTransferMutex.Unlock()
+	} else {
+		d.normalTransferMutex.Unlock()
+	}
+}
+
 func (d *LibUSBDevice) finishReadQueue(debug bool) {
 	d.mw.Log("wait for transfermutex lock")
 	usbEpIn := normalIface.epIn
-	mutex := &d.normalReadMutex
 	if debug {
 		usbEpIn = debugIface.epIn
-		mutex = &d.debugReadMutex
 	}
-	mutex.Lock()
+	d.transferMutexLock(debug)
 	var err error
 	var buf [64]byte
 
@@ -499,11 +511,11 @@ func (d *LibUSBDevice) finishReadQueue(debug bool) {
 		d.mw.Log("transfer")
 		_, err = lowlevel.Interrupt_Transfer(d.dev, usbEpIn, buf[:], 50)
 	}
-	mutex.Unlock()
+	d.transferMutexUnlock(debug)
 	d.mw.Log("done")
 }
 
-func (d *LibUSBDevice) readWrite(buf []byte, endpoint uint8, mutex *sync.Mutex) (int, error) {
+func (d *LibUSBDevice) readWrite(buf []byte, endpoint uint8) (int, error) {
 	d.mw.Log("start")
 	for {
 		d.mw.Log("checking closed")
@@ -514,11 +526,11 @@ func (d *LibUSBDevice) readWrite(buf []byte, endpoint uint8, mutex *sync.Mutex) 
 		}
 
 		d.mw.Log("lock transfer mutex")
-		mutex.Lock()
+		d.transferMutexLock(d.debug)
 		d.mw.Log("actual interrupt transport")
 		// This has no timeout, but is stopped by Cancel_Sync_Transfers_On_Device
 		p, err := lowlevel.Interrupt_Transfer(d.dev, endpoint, buf, 0)
-		mutex.Unlock()
+		d.transferMutexUnlock(d.debug)
 		d.mw.Log("single transfer done")
 
 		if err != nil {
@@ -557,24 +569,20 @@ func isErrorDisconnect(err error) bool {
 func (d *LibUSBDevice) Write(buf []byte) (int, error) {
 	d.mw.Log("write start")
 	usbEpOut := normalIface.epOut
-	mutex := &d.normalWriteMutex
 	if d.oldBL {
 		usbEpOut = oldBLIface.epOut
 	}
 	if d.debug {
 		usbEpOut = debugIface.epOut
-		mutex = &d.debugWriteMutex
 	}
-	return d.readWrite(buf, usbEpOut, mutex)
+	return d.readWrite(buf, usbEpOut)
 }
 
 func (d *LibUSBDevice) Read(buf []byte) (int, error) {
 	d.mw.Log("read start")
 	usbEpIn := normalIface.epIn
-	mutex := &d.normalReadMutex
 	if d.debug {
 		usbEpIn = debugIface.epIn
-		mutex = &d.debugReadMutex
 	}
-	return d.readWrite(buf, usbEpIn, mutex)
+	return d.readWrite(buf, usbEpIn)
 }
