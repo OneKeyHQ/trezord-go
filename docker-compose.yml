@@ -1,8 +1,0 @@
-version: '3'
-services:
-  onekey-bridge:
-    build:
-      context: './'
-    image: "onekey-bridge"
-    ports:
-      - "127.0.0.1:21320:11325"

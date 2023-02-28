@@ -1,4 +1,5 @@
-onekey-go
+
+# installers and secret
 release/installers/
 release/linux/privkey.asc
 release/linux/build/
@@ -8,4 +9,9 @@ release/macos/build/
 release/windows/authenticode.*
 release/windows/build/
 
+# binary
+onekeyd_*
+
+# misc garbage
 .DS_Store
+.vscode
