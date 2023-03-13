@@ -1,16 +1,56 @@
-!include MUI2.nsh
-!include x64.nsh
-!include LogicLib.nsh
-!include WinVer.nsh
+;NSIS Modern User Interface
 
+!pragma warning error all
+
+;Ignore missing translations
+;LangString "xxx" is not set in language table of language xxx
+;BUT, please do not ignore missing translation your self, other than the $(^Name) entry
+!pragma warning disable 6040
+
+;--------------------------------
+;Includes
+
+  !include "MUI2.nsh"
+  !include "WinVer.nsh"
+  !include "LogicLib.nsh"
+  !include "x64.nsh"
+
+;--------------------------------
+;General
+
+  ;Properly display all languages (Installer will not work on Windows 95, 98 or ME!)
+  Unicode true
+
+  ;${PAYLOAD_NAME} is used where style is not important, avoid potential risks due to language/translation
+  !define PAYLOAD_NAME "OneKey_Bridge"
+  ;$(^Name) is used where user can see, like shortcuts, menu entries
+  Name "OneKey Bridge"
+
+  ; Output file name
+  OutFile "onekey-bridge-${BuildVersion}-install.exe"
+
+  ; Installation folder, set by init function instead
+  ; InstallDir "$LOCALAPPDATA\${PAYLOAD_NAME}"
+  
+  ;Get installation folder from registry if available
+  InstallDirRegKey HKLM "SOFTWARE\${PAYLOAD_NAME}" "InstallLocation"
+
+  ;Request application privileges for Windows Vista
+  RequestExecutionLevel admin
+
+  SetCompressor bzip2
+  ShowInstDetails show
+  ShowUninstDetails show
+  
+;--------------------------------
+;Third Party Fonctions
 
 ; StrContains
-; This function does a case sensitive searches for an occurrence of a substring in a string.
-; It returns the substring if it is found.
-; Otherwise it returns null("").
+; This function does a case sensitive searches for an occurrence of a substring in a string. 
+; It returns the substring if it is found. 
+; Otherwise it returns null(""). 
 ; Written by kenglish_hi
 ; Adapted from StrReplace written by dandaman32
-
 
 Var STR_HAYSTACK
 Var STR_NEEDLE
@@ -19,7 +59,7 @@ Var STR_CONTAINS_VAR_2
 Var STR_CONTAINS_VAR_3
 Var STR_CONTAINS_VAR_4
 Var STR_RETURN_VAR
-
+  
 Function StrContains
   Exch $STR_NEEDLE
   Exch 1
@@ -40,8 +80,8 @@ Function StrContains
       StrCpy $STR_RETURN_VAR $STR_NEEDLE
       Goto done
     done:
-   Pop $STR_NEEDLE ;Prevent "invalid opcode" errors and keep the
-   Exch $STR_RETURN_VAR
+  Pop $STR_NEEDLE ;Prevent "invalid opcode" errors and keep the
+  Exch $STR_RETURN_VAR  
 FunctionEnd
 
 !macro _StrContainsConstructor OUT NEEDLE HAYSTACK
@@ -53,153 +93,547 @@ FunctionEnd
 
 !define StrContains '!insertmacro "_StrContainsConstructor"'
 
+;--------------------------------
+;Interface Settings
 
+  !define MUI_ABORTWARNING
 
+  ;Show all languages, despite user's codepage
+  !define MUI_LANGDLL_ALLLANGUAGES
 
-RequestExecutionLevel admin
+  !define MUI_ICON "onekeyd.ico"
+  !define MUI_UNICON "onekeyd.ico"
 
-SetCompressor bzip2
+;--------------------------------
+;Language Selection Dialog Settings
 
-Name "OneKey-Bridge"
-InstallDirRegKey HKLM Software\OneKey-Bridge InstallDir
+  ;Remember the installer language
+  !define MUI_LANGDLL_REGISTRY_ROOT "HKLM" 
+  !define MUI_LANGDLL_REGISTRY_KEY "SOFTWARE\${PAYLOAD_NAME}" 
+  !define MUI_LANGDLL_REGISTRY_VALUENAME "InstallerLanguage"
 
-ShowInstDetails hide
-ShowUninstDetails hide
+;--------------------------------
+;Pages
 
-XPStyle on
+  !insertmacro MUI_PAGE_WELCOME
+  ; !insertmacro MUI_PAGE_LICENSE "${NSISDIR}\Docs\Modern UI\License.txt"
+  !insertmacro MUI_PAGE_COMPONENTS
+  !insertmacro MUI_PAGE_DIRECTORY
+  !insertmacro MUI_PAGE_INSTFILES
+  !insertmacro MUI_PAGE_FINISH
+  
+  !insertmacro MUI_UNPAGE_WELCOME
+  !insertmacro MUI_UNPAGE_CONFIRM
+  ; !insertmacro MUI_UNPAGE_LICENSE "${NSISDIR}\Docs\Modern UI\License.txt"
+  ; !insertmacro MUI_UNPAGE_COMPONENTS
+  ; !insertmacro MUI_UNPAGE_DIRECTORY
+  !insertmacro MUI_UNPAGE_INSTFILES
+  !insertmacro MUI_UNPAGE_FINISH
 
+;--------------------------------
+;Languages
 
-Function .onInit
-UserInfo::GetAccountType
-pop $0
-${If} $0 != "admin" ;Require admin rights on NT4+
-  MessageBox mb_iconstop "You need to be an admin to install OneKey-Bridge. Sorry!"
-  SetErrorLevel 740 ;ERROR_ELEVATION_REQUIRED
-  Quit
-${EndIf}
-FunctionEnd
+  !insertmacro MUI_LANGUAGE "English" ; The first language is the default language
+  !insertmacro MUI_LANGUAGE "French"
+  !insertmacro MUI_LANGUAGE "German"
+  !insertmacro MUI_LANGUAGE "Spanish"
+  ; !insertmacro MUI_LANGUAGE "SpanishInternational"
+  !insertmacro MUI_LANGUAGE "SimpChinese"
+  !insertmacro MUI_LANGUAGE "TradChinese"
+  !insertmacro MUI_LANGUAGE "Japanese"
+  !insertmacro MUI_LANGUAGE "Korean"
+  ; !insertmacro MUI_LANGUAGE "Italian"
+  ; !insertmacro MUI_LANGUAGE "Dutch"
+  ; !insertmacro MUI_LANGUAGE "Danish"
+  ; !insertmacro MUI_LANGUAGE "Swedish"
+  ; !insertmacro MUI_LANGUAGE "Norwegian"
+  ; !insertmacro MUI_LANGUAGE "NorwegianNynorsk"
+  ; !insertmacro MUI_LANGUAGE "Finnish"
+  ; !insertmacro MUI_LANGUAGE "Greek"
+  !insertmacro MUI_LANGUAGE "Russian"
+  ; !insertmacro MUI_LANGUAGE "Portuguese"
+  ; !insertmacro MUI_LANGUAGE "PortugueseBR"
+  ; !insertmacro MUI_LANGUAGE "Polish"
+  ; !insertmacro MUI_LANGUAGE "Ukrainian"
+  ; !insertmacro MUI_LANGUAGE "Czech"
+  ; !insertmacro MUI_LANGUAGE "Slovak"
+  ; !insertmacro MUI_LANGUAGE "Croatian"
+  ; !insertmacro MUI_LANGUAGE "Bulgarian"
+  ; !insertmacro MUI_LANGUAGE "Hungarian"
+  ; !insertmacro MUI_LANGUAGE "Thai"
+  ; !insertmacro MUI_LANGUAGE "Romanian"
+  ; !insertmacro MUI_LANGUAGE "Latvian"
+  ; !insertmacro MUI_LANGUAGE "Macedonian"
+  ; !insertmacro MUI_LANGUAGE "Estonian"
+  ; !insertmacro MUI_LANGUAGE "Turkish"
+  ; !insertmacro MUI_LANGUAGE "Lithuanian"
+  ; !insertmacro MUI_LANGUAGE "Slovenian"
+  ; !insertmacro MUI_LANGUAGE "Serbian"
+  ; !insertmacro MUI_LANGUAGE "SerbianLatin"
+  ; !insertmacro MUI_LANGUAGE "Arabic"
+  ; !insertmacro MUI_LANGUAGE "Farsi"
+  ; !insertmacro MUI_LANGUAGE "Hebrew"
+  ; !insertmacro MUI_LANGUAGE "Indonesian"
+  ; !insertmacro MUI_LANGUAGE "Mongolian"
+  ; !insertmacro MUI_LANGUAGE "Luxembourgish"
+  ; !insertmacro MUI_LANGUAGE "Albanian"
+  ; !insertmacro MUI_LANGUAGE "Breton"
+  ; !insertmacro MUI_LANGUAGE "Belarusian"
+  ; !insertmacro MUI_LANGUAGE "Icelandic"
+  ; !insertmacro MUI_LANGUAGE "Malay"
+  ; !insertmacro MUI_LANGUAGE "Bosnian"
+  ; !insertmacro MUI_LANGUAGE "Kurdish"
+  ; !insertmacro MUI_LANGUAGE "Irish"
+  ; !insertmacro MUI_LANGUAGE "Uzbek"
+  ; !insertmacro MUI_LANGUAGE "Galician"
+  ; !insertmacro MUI_LANGUAGE "Afrikaans"
+  ; !insertmacro MUI_LANGUAGE "Catalan"
+  ; !insertmacro MUI_LANGUAGE "Esperanto"
+  ; !insertmacro MUI_LANGUAGE "Asturian"
+  ; !insertmacro MUI_LANGUAGE "Basque"
+  ; !insertmacro MUI_LANGUAGE "Pashto"
+  ; !insertmacro MUI_LANGUAGE "ScotsGaelic"
+  ; !insertmacro MUI_LANGUAGE "Georgian"
+  ; !insertmacro MUI_LANGUAGE "Vietnamese"
+  ; !insertmacro MUI_LANGUAGE "Welsh"
+  ; !insertmacro MUI_LANGUAGE "Armenian"
+  ; !insertmacro MUI_LANGUAGE "Corsican"
+  ; !insertmacro MUI_LANGUAGE "Tatar"
+  ; !insertmacro MUI_LANGUAGE "Hindi"
 
-Page directory
-Page instfiles
+;--------------------------------
+;Localized custom strings
 
-DirText "Please select the installation folder."
+  ;Template
+  ; LangString TRANS_SecCleanupLegacyInstallation ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_SecOneKeyBridge ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_SecDrivers ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_SecStartMenuShortcuts ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_SecUninstaller ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_SecUninstall ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_ErrAdminPrivilegeRequired ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_ErrWin7AboveRequired ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_StoppingBridgeService ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_StartingBridgeService ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_InstallingBridgeService ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_RemovingDrivers ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_InstallingDrivers ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_GeneratingShortcuts ${LANG_REPLACE_ME} "REPLACE_ME"
+  ; LangString TRANS_GeneratingUninstaller ${LANG_REPLACE_ME} "REPLACE_ME"
 
-Section "OneKey-Bridge"
+  ;English
+  LangString TRANS_SecCleanupLegacyInstallation ${LANG_ENGLISH} "Cleanup Legacy Installation"
+  LangString TRANS_SecOneKeyBridge ${LANG_ENGLISH} "Onekey Bridge"
+  LangString TRANS_SecDrivers ${LANG_ENGLISH} "Drivers"
+  LangString TRANS_SecStartMenuShortcuts ${LANG_ENGLISH} "Start Menu Shortcuts"
+  LangString TRANS_SecUninstaller ${LANG_ENGLISH} "Uninstaller"
+  LangString TRANS_SecUninstall ${LANG_ENGLISH} "Uninstall"
+  LangString TRANS_ErrAdminPrivilegeRequired ${LANG_ENGLISH} "Error: Admin privilege required"
+  LangString TRANS_ErrWin7AboveRequired ${LANG_ENGLISH} "Error: Windows 7 or above required"
+  LangString TRANS_StoppingBridgeService ${LANG_ENGLISH} "Stopping bridge service"
+  LangString TRANS_StartingBridgeService ${LANG_ENGLISH} "Starting bridge service"
+  LangString TRANS_InstallingBridgeService ${LANG_ENGLISH} "Installing bridge service"
+  LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_ENGLISH} "Checking connected OneKey devices from USB"
+  LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_ENGLISH} "Please disconnect any OneKey devices from USB"
+  LangString TRANS_RemovingDrivers ${LANG_ENGLISH} "Removing drivers"
+  LangString TRANS_InstallingDrivers ${LANG_ENGLISH} "Installing drivers"
+  LangString TRANS_GeneratingShortcuts ${LANG_ENGLISH} "Generating shortcuts"
+  LangString TRANS_GeneratingUninstaller ${LANG_ENGLISH} "Generating uninstaller"
+
+  ;French
+  LangString TRANS_SecCleanupLegacyInstallation ${LANG_French} "Nettoyage de l'installation héritée"
+  LangString TRANS_SecOneKeyBridge ${LANG_French} "Onekey Bridge"
+  LangString TRANS_SecDrivers ${LANG_French} "Pilotes"
+  LangString TRANS_SecStartMenuShortcuts ${LANG_French} "Raccourcis du menu Démarrer"
+  LangString TRANS_SecUninstaller ${LANG_French} "Désinstalleur"
+  LangString TRANS_SecUninstall ${LANG_French} "Désinstaller"
+  LangString TRANS_ErrAdminPrivilegeRequired ${LANG_French} "Erreur : Privilège administrateur requis"
+  LangString TRANS_ErrWin7AboveRequired ${LANG_French} "Erreur : Windows 7 ou supérieur requis"
+  LangString TRANS_StoppingBridgeService ${LANG_French} "Arrêt du service de pont"
+  LangString TRANS_StartingBridgeService ${LANG_French} "Démarrage du service de pont"
+  LangString TRANS_InstallingBridgeService ${LANG_French} "Installation du service de pont"
+  LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_French} "Vérification des périphériques OneKey connectés via USB"
+  LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_French} "Veuillez déconnecter tout périphérique OneKey de l'USB"
+  LangString TRANS_RemovingDrivers ${LANG_French} "Suppression des pilotes"
+  LangString TRANS_InstallingDrivers ${LANG_French} "Installation des pilotes"
+  LangString TRANS_GeneratingShortcuts ${LANG_French} "Génération des raccourcis"
+  LangString TRANS_GeneratingUninstaller ${LANG_French} "Génération du désinstalleur"
+
+  ;German
+  LangString TRANS_SecCleanupLegacyInstallation ${LANG_German} "Bereinigung der alten Installation"
+  LangString TRANS_SecOneKeyBridge ${LANG_German} "Onekey Bridge"
+  LangString TRANS_SecDrivers ${LANG_German} "Treiber"
+  LangString TRANS_SecStartMenuShortcuts ${LANG_German} "Startmenüverknüpfungen"
+  LangString TRANS_SecUninstaller ${LANG_German} "Deinstallationsprogramm"
+  LangString TRANS_SecUninstall ${LANG_German} "Deinstallieren"
+  LangString TRANS_ErrAdminPrivilegeRequired ${LANG_German} "Fehler: Administratorrechte erforderlich"
+  LangString TRANS_ErrWin7AboveRequired ${LANG_German} "Fehler: Windows 7 oder höher erforderlich"
+  LangString TRANS_StoppingBridgeService ${LANG_German} "Stoppen des Bridge-Dienstes"
+  LangString TRANS_StartingBridgeService ${LANG_German} "Starten des Bridge-Dienstes"
+  LangString TRANS_InstallingBridgeService ${LANG_German} "Installieren des Bridge-Dienstes"
+  LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_German} "Überprüfen der angeschlossenen OneKey-Geräte über USB"
+  LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_German} "Bitte trennen Sie alle OneKey-Geräte von USB"
+  LangString TRANS_RemovingDrivers ${LANG_German} "Entfernen von Treibern"
+  LangString TRANS_InstallingDrivers ${LANG_German} "Installieren von Treibern"
+  LangString TRANS_GeneratingShortcuts ${LANG_German} "Generieren von Verknüpfungen"
+  LangString TRANS_GeneratingUninstaller ${LANG_German} "Generieren des Deinstallationsprogramms"
+
+  ;Spanish
+  LangString TRANS_SecCleanupLegacyInstallation ${LANG_Spanish} "Limpieza de la instalación heredada"
+  LangString TRANS_SecOneKeyBridge ${LANG_Spanish} "Onekey Bridge"
+  LangString TRANS_SecDrivers ${LANG_Spanish} "Controladores"
+  LangString TRANS_SecStartMenuShortcuts ${LANG_Spanish} "Accesos directos del menú de inicio"
+  LangString TRANS_SecUninstaller ${LANG_Spanish} "Desinstalador"
+  LangString TRANS_SecUninstall ${LANG_Spanish} "Desinstalar"
+  LangString TRANS_ErrAdminPrivilegeRequired ${LANG_Spanish} "Error: se requieren privilegios de administrador"
+  LangString TRANS_ErrWin7AboveRequired ${LANG_Spanish} "Error: se requiere Windows 7 o superior"
+  LangString TRANS_StoppingBridgeService ${LANG_Spanish} "Detener el servicio del puente"
+  LangString TRANS_StartingBridgeService ${LANG_Spanish} "Iniciar el servicio del puente"
+  LangString TRANS_InstallingBridgeService ${LANG_Spanish} "Instalar el servicio del puente"
+  LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_Spanish} "Comprobando los dispositivos OneKey conectados por USB"
+  LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_Spanish} "Por favor, desconecte cualquier dispositivo OneKey del USB"
+  LangString TRANS_RemovingDrivers ${LANG_Spanish} "Eliminando controladores"
+  LangString TRANS_InstallingDrivers ${LANG_Spanish} "Instalando controladores"
+  LangString TRANS_GeneratingShortcuts ${LANG_Spanish} "Generando accesos directos"
+  LangString TRANS_GeneratingUninstaller ${LANG_Spanish} "Generando desinstalador"
+
+  ;SimpChinese
+  LangString TRANS_SecCleanupLegacyInstallation ${LANG_SimpChinese} "旧版本清理"
+  LangString TRANS_SecOneKeyBridge ${LANG_SimpChinese} "OneKey 通信桥"
+  LangString TRANS_SecDrivers ${LANG_SimpChinese} "驱动程序"
+  LangString TRANS_SecStartMenuShortcuts ${LANG_SimpChinese} "开始菜单快捷方式"
+  LangString TRANS_SecUninstaller ${LANG_SimpChinese} "卸载器"
+  LangString TRANS_SecUninstall ${LANG_SimpChinese} "卸载"
+  LangString TRANS_ErrAdminPrivilegeRequired ${LANG_SimpChinese} "错误: 没有管理员权限"
+  LangString TRANS_ErrWin7AboveRequired ${LANG_SimpChinese} "错误: 仅支持Windows 7或更高版本的系统"
+  LangString TRANS_StoppingBridgeService ${LANG_SimpChinese} "停止Bridge服务"
+  LangString TRANS_StartingBridgeService ${LANG_SimpChinese} "启动Bridge服务"
+  LangString TRANS_InstallingBridgeService ${LANG_SimpChinese} "安装Bridge服务"
+  LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_SimpChinese} "检查通过USB连接的OneKey设备"
+  LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_SimpChinese} "请断开所有USB连接的OneKey设备"
+  LangString TRANS_RemovingDrivers ${LANG_SimpChinese} "移除驱动程序"
+  LangString TRANS_InstallingDrivers ${LANG_SimpChinese} "安装驱动程序"
+  LangString TRANS_GeneratingShortcuts ${LANG_SimpChinese} "生成快捷方式"
+  LangString TRANS_GeneratingUninstaller ${LANG_SimpChinese} "生成卸载器"
+
+  ;TradChinese
+  LangString TRANS_SecCleanupLegacyInstallation ${LANG_TradChinese} "清理遺留安裝"
+  LangString TRANS_SecOneKeyBridge ${LANG_TradChinese} "Onekey Bridge"
+  LangString TRANS_SecDrivers ${LANG_TradChinese} "驅動程式"
+  LangString TRANS_SecStartMenuShortcuts ${LANG_TradChinese} "開始功能表捷徑"
+  LangString TRANS_SecUninstaller ${LANG_TradChinese} "解除安裝程式"
+  LangString TRANS_SecUninstall ${LANG_TradChinese} "解除安裝"
+  LangString TRANS_ErrAdminPrivilegeRequired ${LANG_TradChinese} "錯誤：需要管理員權限"
+  LangString TRANS_ErrWin7AboveRequired ${LANG_TradChinese} "錯誤：需要 Windows 7 或以上版本"
+  LangString TRANS_StoppingBridgeService ${LANG_TradChinese} "停止橋接服務"
+  LangString TRANS_StartingBridgeService ${LANG_TradChinese} "啟動橋接服務"
+  LangString TRANS_InstallingBridgeService ${LANG_TradChinese} "安裝橋接服務"
+  LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_TradChinese} "檢查透過 USB 連接的 OneKey 裝置"
+  LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_TradChinese} "請斷開 USB 上的任何 OneKey 裝置"
+  LangString TRANS_RemovingDrivers ${LANG_TradChinese} "移除驅動程式"
+  LangString TRANS_InstallingDrivers ${LANG_TradChinese} "安裝驅動程式"
+  LangString TRANS_GeneratingShortcuts ${LANG_TradChinese} "產生捷徑"
+  LangString TRANS_GeneratingUninstaller ${LANG_TradChinese} "產生解除安裝程式"
+  
+  ;Japanese
+  LangString TRANS_SecCleanupLegacyInstallation ${LANG_Japanese} "レガシーインストールのクリーンアップ"
+  LangString TRANS_SecOneKeyBridge ${LANG_Japanese} "Onekey ブリッジ"
+  LangString TRANS_SecDrivers ${LANG_Japanese} "ドライバー"
+  LangString TRANS_SecStartMenuShortcuts ${LANG_Japanese} "スタートメニューショートカット"
+  LangString TRANS_SecUninstaller ${LANG_Japanese} "アンインストーラー"
+  LangString TRANS_SecUninstall ${LANG_Japanese} "アンインストール"
+  LangString TRANS_ErrAdminPrivilegeRequired ${LANG_Japanese} "エラー：管理者権限が必要です"
+  LangString TRANS_ErrWin7AboveRequired ${LANG_Japanese} "エラー：Windows 7 以上が必要です"
+  LangString TRANS_StoppingBridgeService ${LANG_Japanese} "ブリッジサービスの停止"
+  LangString TRANS_StartingBridgeService ${LANG_Japanese} "ブリッジサービスの開始"
+  LangString TRANS_InstallingBridgeService ${LANG_Japanese} "ブリッジサービスのインストール"
+  LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_Japanese} "USBから接続されたOneKeyデバイスをチェックしています"
+  LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_Japanese} "USBからOneKeyデバイスを切断してください"
+  LangString TRANS_RemovingDrivers ${LANG_Japanese} "ドライバーの削除"
+  LangString TRANS_InstallingDrivers ${LANG_Japanese} "ドライバーのインストール"
+  LangString TRANS_GeneratingShortcuts ${LANG_Japanese} "ショートカットの生成"
+  LangString TRANS_GeneratingUninstaller ${LANG_Japanese} "アンインストーラーの生成"
+
+  ;Korean
+  LangString TRANS_SecCleanupLegacyInstallation ${LANG_Korean} "유산 설치 정리"
+  LangString TRANS_SecOneKeyBridge ${LANG_Korean} "Onekey 브릿지"
+  LangString TRANS_SecDrivers ${LANG_Korean} "드라이버"
+  LangString TRANS_SecStartMenuShortcuts ${LANG_Korean} "시작 메뉴 바로 가기"
+  LangString TRANS_SecUninstaller ${LANG_Korean} "언인스톨러"
+  LangString TRANS_SecUninstall ${LANG_Korean} "언인스톨"
+  LangString TRANS_ErrAdminPrivilegeRequired ${LANG_Korean} "오류 : 관리자 권한 필요"
+  LangString TRANS_ErrWin7AboveRequired ${LANG_Korean} "오류 : Windows 7 이상 필요"
+  LangString TRANS_StoppingBridgeService ${LANG_Korean} "브리지 서비스 중지"
+  LangString TRANS_StartingBridgeService ${LANG_Korean} "브리지 서비스 시작"
+  LangString TRANS_InstallingBridgeService ${LANG_Korean} "브리지 서비스 설치"
+  LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_Korean} "USB로 연결된 OneKey 기기 확인"
+  LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_Korean} "USB에서 OneKey 기기를 연결 해제하세요"
+  LangString TRANS_RemovingDrivers ${LANG_Korean} "드라이버 제거"
+  LangString TRANS_InstallingDrivers ${LANG_Korean} "드라이버 설치"
+  LangString TRANS_GeneratingShortcuts ${LANG_Korean} "바로 가기 생성"
+  LangString TRANS_GeneratingUninstaller ${LANG_Korean} "언인스톨러 생성"
+
+  ;Russian
+  LangString TRANS_SecCleanupLegacyInstallation ${LANG_Russian} "Очистка устаревшей установки"
+  LangString TRANS_SecOneKeyBridge ${LANG_Russian} "Onekey Bridge"
+  LangString TRANS_SecDrivers ${LANG_Russian} "Драйверы"
+  LangString TRANS_SecStartMenuShortcuts ${LANG_Russian} "Ярлыки меню Пуск"
+  LangString TRANS_SecUninstaller ${LANG_Russian} "Деинсталлятор"
+  LangString TRANS_SecUninstall ${LANG_Russian} "Деинсталлировать"
+  LangString TRANS_ErrAdminPrivilegeRequired ${LANG_Russian} "Ошибка: требуется права администратора"
+  LangString TRANS_ErrWin7AboveRequired ${LANG_Russian} "Ошибка: требуется Windows 7 или выше"
+  LangString TRANS_StoppingBridgeService ${LANG_Russian} "Остановка службы моста"
+  LangString TRANS_StartingBridgeService ${LANG_Russian} "Запуск службы моста"
+  LangString TRANS_InstallingBridgeService ${LANG_Russian} "Установка службы моста"
+  LangString TRANS_CheckingConnectedOneKeyDevices ${LANG_Russian} "Проверка подключенных устройств OneKey через USB"
+  LangString TRANS_PleaseDisconnectOneKeyDevices ${LANG_Russian} "Пожалуйста, отсоедините любые устройства OneKey от USB"
+  LangString TRANS_RemovingDrivers ${LANG_Russian} "Удаление драйверов"
+  LangString TRANS_InstallingDrivers ${LANG_Russian} "Установка драйверов"
+  LangString TRANS_GeneratingShortcuts ${LANG_Russian} "Создание ярлыков"
+  LangString TRANS_GeneratingUninstaller ${LANG_Russian} "Создание деинсталлятора"
+
+;--------------------------------
+;Reserve Files
+  
+  ;If you are using solid compression, files that are required before
+  ;the actual installation should be stored first in the data block,
+  ;because this will make your installer start faster.
+  
+  !insertmacro MUI_RESERVEFILE_LANGDLL
+
+;--------------------------------
+;Installer Sections
+
+Section "$(TRANS_SecCleanupLegacyInstallation)" SecCleanupLegacyInstallation
   SectionIn RO
 
-  DetailPrint "Stopping previous Bridge"
+  ;call legacy uninstaller
+  nsExec::Exec "$PROGRAMFILES32\OneKey-Bridge\Uninstall.exe /S"
+  nsExec::Exec "$PROGRAMFILES64\OneKey-Bridge\Uninstall.exe /S"
+
+  ; force cleanup just incase
+  nsExec::Exec "taskkill /IM onekeyd.exe /F"
+  ; using "cmd" and "rmdir/del" instald of built-in commands because "RMDir/Delete" is case sensitive
+  nsExec::Exec '"$sysdir\cmd.exe" /c "rmdir /s /q "$PROGRAMFILES32\OneKey-Bridge"'
+  nsExec::Exec '"$sysdir\cmd.exe" /c "rmdir /s /q "$PROGRAMFILES64\OneKey-Bridge"'
+  SetShellVarContext current
+  nsExec::Exec '"$sysdir\cmd.exe" /c "rmdir /s /q "$APPDATA\ONEKEY-Bridge'
+  SetShellVarContext all
+  nsExec::Exec '"$sysdir\cmd.exe" /c "rmdir /s /q "$SMPROGRAMS\ONEKEY-Bridge"'
+  nsExec::Exec '"$sysdir\cmd.exe" /c "del /f /q "$SMSTARTUP\ONEKEY-Bridge.lnk"'
+SectionEnd
+
+Section "$(TRANS_SecOneKeyBridge)" SecOneKeyBridge
+  SetOutPath "$INSTDIR"
+  SectionIn RO
+
+  ;--------------------------------
+  DetailPrint "$(TRANS_StoppingBridgeService)"
   nsExec::Exec "taskkill /IM onekeyd.exe /F"
 
-  SetOutPath "$INSTDIR"
+  ;--------------------------------
+  DetailPrint "$(TRANS_InstallingBridgeService)"
   ${If} ${RunningX64}
-    ${If} ${IsWin7}
-      File /oname=wdi-simple.exe wdi-simple-64b.exe
-    ${EndIf}
-    File /oname=onekeyd.exe onekeyd-64b.exe
-    File /oname=devcon.exe devcon-64b.exe
+    File /oname=onekeyd.exe "./onekeyd_windows_amd64.exe"
   ${Else}
-    ${If} ${IsWin7}
-      File /oname=wdi-simple.exe wdi-simple-32b.exe
-    ${EndIf}
-    File /oname=onekeyd.exe onekeyd-32b.exe
-    File /oname=devcon.exe devcon-32b.exe
+    File /oname=onekeyd.exe "./onekeyd_windows_i386.exe"
   ${EndIf}
   File "onekeyd.ico"
-SectionEnd
 
-Section "Start Menu Shortcuts"
+  SetShellVarContext current
+  nsExec::Exec '"$sysdir\cmd.exe" /c "mkdir "$APPDATA\${PAYLOAD_NAME}"'
+
+  ;--------------------------------
+  DetailPrint "$(TRANS_StartingBridgeService)"
   SetShellVarContext all
+  CreateShortCut "$SMSTARTUP\$(^Name).lnk" "$INSTDIR\onekeyd.exe" "-v -l $\"%APPDATA%\${PAYLOAD_NAME}\onekeyd.log$\"" "$INSTDIR\onekeyd.ico" 0
+  ExecShell "" "$SMSTARTUP\$(^Name).lnk"
 
-  CreateDirectory "$SMPROGRAMS\ONEKEY-Bridge"
-  CreateShortCut "$SMPROGRAMS\ONEKEY-Bridge\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\ONEKEY-Bridge\ONEKEY-Bridge.lnk" "$INSTDIR\onekeyd.exe" "-v -l $\"%APPDATA%\ONEKEY-Bridge\onekeyd.log$\"" "$INSTDIR\onekeyd.ico" 0
-  CreateShortCut "$SMSTARTUP\ONEKEY-Bridge.lnk" "$INSTDIR\onekeyd.exe" "-v -l $\"%APPDATA%\ONEKEY-Bridge\onekeyd.log$\"" "$INSTDIR\onekeyd.ico" 0
+  WriteRegStr HKLM "SOFTWARE\${PAYLOAD_NAME}" "InstallLocation" $INSTDIR
+  WriteRegStr HKLM "SOFTWARE\${PAYLOAD_NAME}" "InstallerLanguage" $LANGUAGE
 SectionEnd
 
-Var CMDRESULT
-Var CONTAINS
+Section "$(TRANS_SecDrivers)" SecDrivers
+  SetOutPath "$INSTDIR"
 
-Section "Check for connected devices"
-  nsExec::ExecToLog '"$INSTDIR\devcon.exe" rescan'
+  ;--------------------------------
+  DetailPrint "$(TRANS_CheckingConnectedOneKeyDevices)"
+  ${If} ${RunningX64}
+    File /oname=devcon.exe "./devcon_amd64.exe"
+  ${Else}
+    File /oname=devcon.exe "./devcon_i386.exe"
+  ${EndIf}
 
-  DetailPrint "Checking for connected devices"
-  nsExec::ExecToStack '"$INSTDIR\devcon.exe" find *vid_1209*'
-  Pop $0
-  Pop $CMDRESULT
-  ${StrContains} $CONTAINS "No matching devices" $CMDRESULT
+  Var /GLOBAL CONTAINS_1
+  Var /GLOBAL CONTAINS_2
+  Var /GLOBAL CMDRESULT
 
-  ${DoWhile} $CONTAINS == ""
-    MessageBox MB_OK "please disconnect the OneKey device"
+  nsExec::Exec '"$INSTDIR\devcon.exe" rescan'
 
+  ${Do}
     nsExec::ExecToStack '"$INSTDIR\devcon.exe" find *vid_1209*'
     Pop $0
     Pop $CMDRESULT
-    ${StrContains} $CONTAINS "No matching devices" $CMDRESULT
-  ${Loop}
-
-  nsExec::ExecToStack '"$INSTDIR\devcon.exe" find *vid_534c*'
-  Pop $0
-  Pop $CMDRESULT
-  ${StrContains} $CONTAINS "No matching devices" $CMDRESULT
-
-  ${DoWhile} $CONTAINS == ""
-    MessageBox MB_OK "please disconnect the OneKey device"
+    ${StrContains} $CONTAINS_1 "No matching devices found." $CMDRESULT
 
     nsExec::ExecToStack '"$INSTDIR\devcon.exe" find *vid_534c*'
     Pop $0
     Pop $CMDRESULT
-    ${StrContains} $CONTAINS "No matching devices" $CMDRESULT
+    ${StrContains} $CONTAINS_2 "No matching devices found." $CMDRESULT
+
+    ${If} "$CONTAINS_1" == "No matching devices found."
+      ${If} "$CONTAINS_2" == "No matching devices found."
+        ${Break}
+      ${EndIf}
+    ${EndIf}
+
+    MessageBox MB_OK "$(TRANS_PleaseDisconnectOneKeyDevices)"
   ${Loop}
-SectionEnd
 
-Section "Uninstall previous drivers"
-  DetailPrint "Uninstalling previous drivers"
-  nsExec::ExecToLog '"$INSTDIR\devcon.exe" removeall *vid_1209*'
-  nsExec::ExecToLog '"$INSTDIR\devcon.exe" removeall *vid_534c*'
-  nsExec::ExecToLog '"$INSTDIR\devcon.exe" rescan'
-  nsExec::ExecToLog '"$INSTDIR\devcon.exe" dp_find_delete "(Undefined Vendor)" libwdi'
-  nsExec::ExecToLog '"$INSTDIR\devcon.exe" dp_find_delete "SatoshiLabs" libwdi'
-  nsExec::ExecToLog '"$INSTDIR\devcon.exe" rescan'
-SectionEnd
+  ;--------------------------------
+  DetailPrint "$(TRANS_RemovingDrivers)"
+  nsExec::Exec '"$INSTDIR\devcon.exe" removeall *vid_1209*'
+  nsExec::Exec '"$INSTDIR\devcon.exe" removeall *vid_534c*'
+  nsExec::Exec '"$INSTDIR\devcon.exe" rescan'
+  nsExec::Exec '"$INSTDIR\devcon.exe" dp_find_delete "(Undefined Vendor)" libwdi'
+  nsExec::Exec '"$INSTDIR\devcon.exe" dp_find_delete "SatoshiLabs" libwdi'
+  nsExec::Exec '"$INSTDIR\devcon.exe" dp_find_delete "OneKey Ltd." libwdi'
+  nsExec::Exec '"$INSTDIR\devcon.exe" rescan'
 
-Section "Install drivers"
-  ${If} ${IsWin7}
-  DetailPrint "Installing drivers"
-  nsExec::ExecToLog '"$sysdir\cmd.exe" /c "mkdir "%APPDATA%\ONEKEY-Bridge""'
-  nsExec::ExecToLog '"$sysdir\cmd.exe" /c ""$INSTDIR\wdi-simple.exe" --name "ONEKEY" --manufacturer "SatoshiLabs" --vid 0x1209 --pid 0x53C0 --progressbar=$HWNDPARENT > "%APPDATA%\ONEKEY-Bridge\wdi-log.txt" 2>&1"'
-  nsExec::ExecToLog '"$sysdir\cmd.exe" /c ""$INSTDIR\wdi-simple.exe" --name "ONEKEY" --manufacturer "SatoshiLabs" --vid 0x1209 --pid 0x53C1 --iid 0 --progressbar=$HWNDPARENT >> "%APPDATA%\ONEKEY-Bridge\wdi-log.txt" 2>&1"'
+  ;--------------------------------
+  DetailPrint "$(TRANS_InstallingDrivers)"
+  ${If} ${RunningX64}
+    File /oname=wdi-simple.exe "./wdi-simple_amd64.exe"
+  ${Else}
+    File /oname=wdi-simple.exe "./wdi-simple_i386.exe"
   ${EndIf}
-  nsExec::ExecToLog '"$INSTDIR\devcon.exe" rescan'
+  
+  DetailPrint "$(TRANS_InstallingDrivers) -> [OneKey Bootloader]"
+  nsExec::ExecToLog '"$sysdir\cmd.exe" /c ""$INSTDIR\wdi-simple.exe" --name "OneKey Bootloader" --manufacturer "OneKey Ltd." --vid 0x1209 --pid 0x4F4A --progressbar=$HWNDPARENT > "%APPDATA%\${PAYLOAD_NAME}\wdi-log.txt" 2>&1"'
+  
+  DetailPrint "$(TRANS_InstallingDrivers) -> [OneKey Device]"
+  nsExec::ExecToLog '"$sysdir\cmd.exe" /c ""$INSTDIR\wdi-simple.exe" --name "OneKey Device" --manufacturer "OneKey Ltd." --vid 0x1209 --pid 0x4F4B --iid 0 --progressbar=$HWNDPARENT >> "%APPDATA%\${PAYLOAD_NAME}\wdi-log.txt" 2>&1"'
+  
+  ; not currently used
+  ; DetailPrint "$(TRANS_InstallingDrivers) -> [ONEKEY]"
+  ; nsExec::ExecToLog '"$sysdir\cmd.exe" /c ""$INSTDIR\wdi-simple.exe" --name "ONEKEY" --manufacturer "OneKey Ltd." --vid 0x1209 --pid 0x4F4C --iid 0 --progressbar=$HWNDPARENT >> "%APPDATA%\${PAYLOAD_NAME}\wdi-log.txt" 2>&1"'
+  
+  DetailPrint "$(TRANS_InstallingDrivers) -> [ONEKEY BL]"
+  nsExec::ExecToLog '"$sysdir\cmd.exe" /c ""$INSTDIR\wdi-simple.exe" --name "ONEKEY BL" --manufacturer "OneKey Ltd." --vid 0x1209 --pid 0x53C0 --progressbar=$HWNDPARENT > "%APPDATA%\${PAYLOAD_NAME}\wdi-log.txt" 2>&1"'
+  
+  DetailPrint "$(TRANS_InstallingDrivers) -> [ONEKEY]"
+  nsExec::ExecToLog '"$sysdir\cmd.exe" /c ""$INSTDIR\wdi-simple.exe" --name "ONEKEY" --manufacturer "OneKey Ltd." --vid 0x1209 --pid 0x53C1 --iid 0 --progressbar=$HWNDPARENT >> "%APPDATA%\${PAYLOAD_NAME}\wdi-log.txt" 2>&1"'
+  
+  nsExec::Exec '"$INSTDIR\devcon.exe" rescan'
+
 SectionEnd
 
-Section "Uninstall"
+Section "$(TRANS_SecStartMenuShortcuts)" SecStartMenuShortcuts
+  DetailPrint "$(TRANS_GeneratingShortcuts)"
+  SetShellVarContext all
+  CreateDirectory "$SMPROGRAMS\${PAYLOAD_NAME}"
+  CreateShortCut "$SMPROGRAMS\${PAYLOAD_NAME}\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\${PAYLOAD_NAME}\$(^Name).lnk" "$INSTDIR\onekeyd.exe" "-v -l $\"%APPDATA%\${PAYLOAD_NAME}\onekeyd.log$\"" "$INSTDIR\onekeyd.ico" 0
+SectionEnd
+
+Section "$(TRANS_SecUninstaller)" SecUninstaller
+  SetOutPath "$INSTDIR"
+  SectionIn RO
+
+  DetailPrint "$(TRANS_GeneratingUninstaller)"
+
+  ;Uninstaller
+  WriteUninstaller "$INSTDIR\Uninstall.exe"
+
+  ;Windows Add/Remove Programs
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PAYLOAD_NAME}" "DisplayName" "$(^Name)"
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PAYLOAD_NAME}" "DisplayIcon" "$INSTDIR\Uninstall.exe"
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PAYLOAD_NAME}" "DisplayVersion" "${BuildVersion}"
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PAYLOAD_NAME}" "Publisher" "OneKey Ltd."
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PAYLOAD_NAME}" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
+
+SectionEnd
+
+;--------------------------------
+;Installer Functions
+
+Function .onInit
+
+  !insertmacro MUI_LANGDLL_DISPLAY
+
+  UserInfo::GetAccountType
+  pop $0
+  ${If} $0 != "admin" ;Require admin rights on NT4+
+    MessageBox mb_iconstop "$(TRANS_ErrAdminPrivilegeRequired)"
+    SetErrorLevel 740 ;ERROR_ELEVATION_REQUIRED
+    Quit
+  ${EndIf}
+  ${IfNot} ${AtLeastWin7}
+    MessageBox mb_iconstop "$(TRANS_ErrWin7AboveRequired)"
+    Quit
+  ${EndIf}
+
+  ; Installation folder
+  ${If} ${RunningX64}
+    StrCpy $INSTDIR "$PROGRAMFILES64\${PAYLOAD_NAME}"
+  ${Else}
+    StrCpy $INSTDIR "$PROGRAMFILES32\${PAYLOAD_NAME}"
+  ${EndIf}
+
+FunctionEnd
+
+;--------------------------------
+;Descriptions
+
+  ;USE A LANGUAGE STRING IF YOU WANT YOUR DESCRIPTIONS TO BE LANGUAGE SPECIFIC
+
+  ;Assign descriptions to sections
+  ; !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  ;   !insertmacro MUI_DESCRIPTION_TEXT ${SecDummy} "A test section."
+  ; !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+ 
+;--------------------------------
+;Uninstaller Section
+
+Section un."$(TRANS_SecUninstall)" SecUninstall
+
+  ;--------------------------------
+  DetailPrint "$(TRANS_StoppingBridgeService)"
   ExecWait "taskkill /f /im onekeyd.exe"
 
-  Delete /rebootok "$SMSTARTUP\ONEKEY-Bridge.lnk"
-  Delete /rebootok "$SMPROGRAMS\ONEKEY-Bridge\ONEKEY-Bridge.lnk"
-  Delete /rebootok "$SMPROGRAMS\ONEKEY-Bridge\Uninstall.lnk"
-  RMDir "$SMPROGRAMS\ONEKEY-Bridge"
+  ;--------------------------------
+  DetailPrint "$(TRANS_RemovingDrivers)"
+  nsExec::Exec '"$INSTDIR\devcon.exe" removeall *vid_1209*'
+  nsExec::Exec '"$INSTDIR\devcon.exe" removeall *vid_534c*'
+  nsExec::Exec '"$INSTDIR\devcon.exe" rescan'
+  nsExec::Exec '"$INSTDIR\devcon.exe" dp_find_delete "(Undefined Vendor)" libwdi'
+  nsExec::Exec '"$INSTDIR\devcon.exe" dp_find_delete "SatoshiLabs" libwdi'
+  nsExec::Exec '"$INSTDIR\devcon.exe" dp_find_delete "OneKey Ltd." libwdi'
+  nsExec::Exec '"$INSTDIR\devcon.exe" rescan'
 
-  RMDir /r /rebootok "$INSTDIR\usb_driver"
-  Delete /rebootok "$INSTDIR\devcon.exe"
-  Delete /rebootok "$INSTDIR\wdi-simple.exe"
-  Delete /rebootok "$INSTDIR\onekeyd.exe"
-  Delete /rebootok "$INSTDIR\onekeyd.ico"
-  Delete /rebootok "$INSTDIR\trezord.ico"
-  Delete /rebootok "$INSTDIR\trezord.exe"
-  Delete /rebootok "$INSTDIR\Uninstall.exe"
-  RMDir "$INSTDIR"
+  ;--------------------------------
+  SetShellVarContext current
+  RMDir /r "$APPDATA\${PAYLOAD_NAME}"
+  SetShellVarContext all
+  RMDir /r "$SMPROGRAMS\${PAYLOAD_NAME}"
+  Delete "$SMSTARTUP\$(^Name).lnk"
+  RMDir /r "$INSTDIR"
+
+  DeleteRegKey HKLM "SOFTWARE\${PAYLOAD_NAME}"
+
+  ;Windows Add/Remove Programs
+  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PAYLOAD_NAME}"
+
 SectionEnd
 
-Section -post
-  WriteUninstaller "$INSTDIR\Uninstall.exe"
-SectionEnd
+;--------------------------------
+;Uninstaller Functions
 
-!define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_TEXT "Start OneKey-Bridge"
-!define MUI_FINISHPAGE_RUN_FUNCTION "LaunchApplication"
-!insertmacro MUI_PAGE_FINISH
+Function un.onInit
 
-Function LaunchApplication
-  ExecShell "" "$SMPROGRAMS\ONEKEY-Bridge\ONEKEY-Bridge.lnk"
+  !insertmacro MUI_UNGETLANGUAGE
+  
 FunctionEnd
