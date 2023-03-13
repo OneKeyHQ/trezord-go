@@ -1,13 +1,8 @@
 
 # installers and secret
-release/installers/
-release/linux/privkey.asc
-release/linux/build/
-release/macos/cert0*
-release/macos/key.pem
-release/macos/build/
-release/windows/authenticode.*
-release/windows/build/
+release/**/target
+release/**/output
+release/**/input_files/*
 
 # binary
 onekeyd_*
