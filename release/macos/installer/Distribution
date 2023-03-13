@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+  <!--displayed in the header-->
+  <title>OneKey Bridge</title>
+  <!--displayed on start, can be localized-->
+  <welcome file="welcome.txt" mime-type="text/plain" />
+
+  <pkg-ref id="so.onekey.bridge" />
+
+  <choices-outline>
+    <line choice="so.onekey.bridge" />
+  </choices-outline>
+
+  <choice id="so.onekey.bridge" visible="true" title="OneKey Bridge Installer">
+    <pkg-ref id="so.onekey.bridge" />
+  </choice>
+  <pkg-ref id="so.onekey.bridge" version="VERSION" onConclusion="none">so.onekey.bridge.install.pkg</pkg-ref>
+
+  <options customize="never" allow-external-scripts="no"/>
+
+</installer-gui-script>

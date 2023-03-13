@@ -1,0 +1,3 @@
+OneKey communication bridge uninstaller
+
+Click "Continue" to uninstall.

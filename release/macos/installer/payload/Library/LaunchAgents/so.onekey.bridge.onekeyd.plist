@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>com.bitcoinonekey.onekeyBridge.onekey</string>
+    <string>so.onekey.bridge.onekeyd</string>
 
     <key>KeepAlive</key>
     <true/>

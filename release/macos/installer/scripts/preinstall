@@ -1,0 +1,37 @@
+#!/bin/sh
+
+set -x
+set -e
+
+# find out which user is running the installation
+# inst_user=`stat /dev/console | cut -f 5 -d ' '`
+inst_user=$USER
+
+# cleanup legacy version
+set +e
+agent_file=/Library/LaunchAgents/com.bitcoinonekey.onekeyBridge.onekeyd.plist
+if [ -f "$agent_file" ]; then
+    sudo -u $inst_user launchctl unload $agent_file
+    sudo -u $inst_user killall onekeyd > /dev/null
+    rm $agent_file
+fi
+
+if [ -d "/Applications/Utilities/OneKey\ Bridge" ]; then
+    rm -r /Applications/Utilities/OneKey\ Bridge
+fi
+
+pkgutil --forget com.bitcoinonekey.pkg.ONEKEYBridge.uninstall
+set -e
+
+agent_file=/Library/LaunchAgents/so.onekey.bridge.onekeyd.plist
+
+set +e
+sudo -u $inst_user launchctl unload $agent_file
+sudo -u $inst_user killall onekeyd > /dev/null
+
+rm $agent_file
+rm -r /Applications/Utilities/OneKey\ Bridge
+
+pkgutil --forget so.onekey.bridge
+
+set -e
