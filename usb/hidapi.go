@@ -1,3 +1,4 @@
+//go:build (darwin && !ios && cgo) || (windows && cgo)
 // +build darwin,!ios,cgo windows,cgo
 
 package usb
@@ -97,7 +98,8 @@ func (b *HIDAPI) match(d *lowlevel.HidDeviceInfo) bool {
 	pid := d.ProductID
 	trezor1 := vid == core.VendorT1 && (pid == core.ProductT1Firmware)
 	trezor2 := vid == core.VendorT2 && (pid == core.ProductT2Firmware || pid == core.ProductT2Bootloader)
-	return (trezor1 || trezor2) && (d.Interface == int(normalIface.number) || d.UsagePage == hidUsagePage)
+	onekey := vid == core.VendorOneKey && (pid == core.OneKeyirmware || pid == core.OneKeyBootloader)
+	return (trezor1 || trezor2 || onekey) && (d.Interface == int(normalIface.number) || d.UsagePage == hidUsagePage)
 }
 
 func (b *HIDAPI) identify(dev *lowlevel.HidDeviceInfo) string {

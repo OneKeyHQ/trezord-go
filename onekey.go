@@ -11,15 +11,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/getsentry/sentry-go"
 	"github.com/OneKeyHQ/onekey-bridge/core"
 	"github.com/OneKeyHQ/onekey-bridge/memorywriter"
 	"github.com/OneKeyHQ/onekey-bridge/server"
 	"github.com/OneKeyHQ/onekey-bridge/usb"
+	"github.com/getsentry/sentry-go"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-const version = "2.1.0"
+var version string = "0.0.0"
 
 type udpTouples []usb.PortTouple
 
@@ -115,8 +115,8 @@ func main() {
 	flag.Parse()
 
 	sentry.Init(sentry.ClientOptions{
-		Dsn: "",
-		Debug: false,
+		Dsn:     "",
+		Debug:   false,
 		Release: version,
 	})
 

@@ -335,6 +335,10 @@ func matchType(dd *lowlevel.Device_Descriptor) core.DeviceType {
 		return core.TypeT2Boot
 	}
 
+	if dd.IdProduct == core.OneKeyBootloader {
+		return core.TypeT2Boot
+	}
+
 	if int(dd.BcdDevice>>8) == 1 {
 		return core.TypeT1Webusb
 	}
@@ -394,13 +398,14 @@ func (b *LibUSB) match(dev lowlevel.Device) (bool, core.DeviceType) {
 func (b *LibUSB) matchVidPid(vid uint16, pid uint16) bool {
 	// Note: Trezor1 libusb will actually have the T2 vid/pid
 	trezor2 := vid == core.VendorT2 && (pid == core.ProductT2Firmware || pid == core.ProductT2Bootloader)
+	onekey := vid == core.VendorOneKey && (pid == core.OneKeyirmware || pid == core.OneKeyBootloader)
 
 	if b.only {
 		trezor1 := vid == core.VendorT1 && (pid == core.ProductT1Firmware)
-		return trezor1 || trezor2
+		return trezor1 || trezor2 || onekey
 	}
 
-	return trezor2
+	return trezor2 || onekey
 }
 
 func (b *LibUSB) identify(dev lowlevel.Device) string {
