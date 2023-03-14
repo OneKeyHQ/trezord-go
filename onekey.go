@@ -9,13 +9,11 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/OneKeyHQ/onekey-bridge/core"
 	"github.com/OneKeyHQ/onekey-bridge/memorywriter"
 	"github.com/OneKeyHQ/onekey-bridge/server"
 	"github.com/OneKeyHQ/onekey-bridge/usb"
-	"github.com/getsentry/sentry-go"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -114,21 +112,6 @@ func main() {
 	flag.BoolVar(&reset, "r", true, "Reset USB device on session acquiring. Enabled by default (to prevent wrong device states); set to false if you plan to connect to debug link outside of bridge.")
 	flag.Parse()
 
-	sentry.Init(sentry.ClientOptions{
-		Dsn:     "",
-		Debug:   false,
-		Release: version,
-	})
-
-	defer func() {
-		err := recover()
-
-		if err != nil {
-			sentry.CurrentHub().Recover(err)
-			sentry.Flush(time.Second * 5)
-		}
-	}()
-
 	if versionFlag {
 		fmt.Printf("onekey version %s", version)
 		return
@@ -188,14 +171,12 @@ func main() {
 	s, err := server.New(c, stderrWriter, shortMemoryWriter, longMemoryWriter, version)
 
 	if err != nil {
-		sentry.CaptureException(err)
 		stderrLogger.Fatalf("https: %s", err)
 	}
 
 	longMemoryWriter.Log("Running HTTP server")
 	err = s.Run()
 	if err != nil {
-		sentry.CaptureException(err)
 		stderrLogger.Fatalf("https: %s", err)
 	}
 
