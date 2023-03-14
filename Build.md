@@ -2,7 +2,9 @@ How to build
 
 ## Before start
 
-We are using Ubuntu 22.10 as build environment. And cross build for all other platforms.
+We are using Ubuntu 22.10 as build environment for Windows and Linux target
+
+For MacOS, you will need MacOS environment
 
 ## Dependencies
 
@@ -66,8 +68,6 @@ export CGO_ENABLED=1 GOOS=linux GOARCH=arm CC="arm-linux-gnueabihf-gcc"
 go build -ldflags="-X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_${GOARCH}hf" .
 export CGO_ENABLED=1 GOOS=linux GOARCH=arm CC="arm-linux-gnueabi-gcc"
 go build -ldflags="-X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_${GOARCH}" .
-
-# package it ?
 ```
 
 
@@ -80,8 +80,6 @@ export CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc"
 go build -ldflags="-H windowsgui -X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_${GOARCH}.exe" .
 export CGO_ENABLED=1 GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"
 go build -ldflags="-H windowsgui -X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_i${GOARCH}.exe" .
-
-# package it ?
 ```
 
 
@@ -106,8 +104,6 @@ export CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 CC=""
 go build -ldflags="-X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_${GOARCH}" .
 export CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CC=""
 go build -ldflags="-X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_${GOARCH}" .
-
-# package it ?
 ```
 
 

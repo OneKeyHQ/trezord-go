@@ -1,90 +1,32 @@
-# onekey-bridge
-可以在 [release](https://github.com/OneKeyHQ/onekey-bridge/releases) 看到最新发布的二进制安装文件。
+# OneKey Bridge
 
-## 编译与安装
-在本地安装了 go 环境之后，最好把项目安装到 GOPATH 中，防止后续 go 编译错误，一般来说 GOPATH 是 `~/${username}/go` （`username` 是当前登陆账户）：
-```
-go get github.com/karalabe/xgo
-docker pull karalabe/xgo-latest
-```
+You could obtain binary files and installer packages at [release](https://github.com/OneKeyHQ/onekey-bridge/releases) page
 
-同时确保 `xgo` 和 `docker` 在环境变量中
+## How To Build (Both binary and installer)
 
-```
-cd release
-GOPATH=xx make all
-```
+Please refer to [Build.md](Build.md)
 
-进入 release 文件夹，在跑命令时，增加 GOPATH 环境变量，GOPATH 一般来说是 `~/${username}/go` （username 是当前登陆账户），也可以通过 `go env` 来确认。
+All version numbers are controlled by `VERSION` at root level, no need to change other files
 
-编译完成之后，installers 下面就会有以下二进制安装文件：
-
-* onekey-bridge-${version}-1.i386.rpm（Linux 32-bit (rpm)）
-* onekey-bridge-${version}-1.x86_64.rpm（Linux 64-bit (rpm)）
-* onekey-bridge-${version}-win32-install.exe（windows 系统用户，32位，64位均用此安装包）
-* onekey-bridge-${version}.pkg（OSX 系统用户）
-* onekey-bridge_${version}_amd64.deb（Linux 64-bit (deb)）
-* onekey-bridge_${version}_i386.deb（Linux 32-bit (deb)）
-
-其中中间的内容是版本号，由根目录下的 VERSION 文件控制，所以每次代码更新后，需要手动更新 VERSION 文件中的版本号。
-
-**Only compatible with Chrome (version 53 or later) and Firefox (version 55 or later).**
-
-status: [spec](https://w3c.github.io/webappsec-secure-contexts/#is-origin-trustworthy) [Chrome](https://bugs.chromium.org/p/chromium/issues/detail?id=607878) [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=903966) [Edge](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/11963735/)
-
-## Install and run from source
-
-onekey-bridge requires go >= 1.6
-
-```
-go get github.com/OneKeyHQ/onekey-bridge
-go build github.com/OneKeyHQ/onekey-bridge
-./onekey-bridge -h
-```
-
-On Linux don't forget to install the [udev rules](https://github.com/trezor/trezor-common/blob/master/udev/51-trezor.rules) if you are running from source and not using pre-built packages.
-
-## Guide to compiling packages
-
-Prerequisites:
-
-* `go get github.com/karalabe/xgo`
-* `docker pull karalabe/xgo-latest`
-* make sure `xgo` and `docker` are in `$PATH`
-* `cd release && make all`; the installers are in `installers`
-
-## Quick guide to cross-compiling
-
-Prerequisites:
-
-* `go get github.com/karalabe/xgo`
-* `docker pull karalabe/xgo-latest`
-
-Compiling for officially supported platforms:
-
-* `$GOPATH/bin/xgo -targets=windows/amd64,windows/386,darwin/amd64,linux/amd64,linux/386 .`
+For things work properly , be sure to follow build methods documented in [Build.md](Build.md)
 
 ## Emulator support
 
-onekey supports emulators for both OneKey versions. However, you need to enable it manually; it is disabled by default. After enabling, services that work with emulator can work with all services that support onekey.
+OneKey bridge has emulator support, but it's disabled by default.
 
-To enable emulator, run onekey with a parameter `-e` followed by port, for every emulator with an enabled port
+To enable emulator support, launch with `-e` parameter followed by port, for example `./onekeyd -e 21324`
 
-`./onekey -e 21324`
+To disable all USB in order to run on some virtual environments,launch with `-u=false` parameter, for example `./onekeyd -u=false`
 
-If you want to run this automatically on linux, do
+If you want change default launch options,  you may have to change service accordingly
 
-`sudo systemctl edit --full onekey.service`
+## Edit Default Service Launch Options
 
-and edit the service file (and maybe restart the onekey service). On mac, you will need to edit
+On Linux, `sudo systemctl edit --full onekeyd.service` to edit the service control file
 
-`/Library/LaunchAgents/com.bitcoinonekey.onekeyBridge.onekey.plist`
+On MacOS, open `/Library/LaunchAgents/so.onekey.bridge.onekeyd.plist` to edit the service control file
 
-and edit the last `<string>` in the plist. (And also probably restart the pc.)
-
-You can disable all USB in order to run on some virtuaized environments, for example Travis
-
-`./onekey -e 21324 -u=false`
+On Windows, open `shell:startup` folder, then edit the `OneKey Bridge.lnk` file
 
 ## API documentation
 
@@ -105,11 +47,11 @@ Server supports following API calls:
 
 ## Debug link support
 
-onekey has support for debug link.
+OneKey Bridge has support for debug link.
 
 To support an emulator with debug link, run
 
-`./onekey -ed 21324:21320 -u=false`
+`./onekeyd -ed 21324:21320 -u=false`
 
 this will detect emulator debug link on port 21320, with regular device on 21324.
 
@@ -117,7 +59,7 @@ To support WebUSB devices with debug link, no option is needed, just run onekey-
 
 In the `enumerate` and `listen` results, there are now two new fields: `debug` and `debugSession`. `debug` signals that device can receive debug link messages.
 
-Session management is separate for debug link and normal interface, so you can have two applications - one controlling onekey and one "normal".
+Session management is separate for debug link and normal interface, so you can have two applications - one controlling OneKey and one "normal".
 
 There are new calls:
 
