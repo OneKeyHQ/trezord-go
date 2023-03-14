@@ -1,10 +1,10 @@
-name: Build Release Package
+name: Build Binary Only
 on:
   workflow_dispatch:
 
 jobs:
-  release-linux:
-    name: "release-linux"
+  build-linux:
+    name: "build-linux"
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -52,24 +52,16 @@ jobs:
           export CGO_ENABLED=1 GOOS=linux GOARCH=arm CC="arm-linux-gnueabi-gcc"
           go build -ldflags="-X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_${GOARCH}" .
 
-      - name: Build packages
-        run: |
-          mv onekeyd_linux_* release/linux/input_files/
-          cd release/linux/
-          chmod +x build.sh
-          ./build.sh
-          cd ../../
-
       - name: Move and zip artifacts
         run: |
           mkdir artifacts
-          mv release/linux/output/* artifacts/
+          mv onekeyd_* artifacts/
           # zip -rj artifacts.zip artifacts/*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ github.event.repository.name }}-${{ steps.vars.outputs.bridge_version }}-${{ steps.vars.outputs.build_date }}-${{ steps.vars.outputs.short_hash }}-release-packages"
+          name: "${{ github.event.repository.name }}-${{ steps.vars.outputs.bridge_version }}-${{ steps.vars.outputs.build_date }}-${{ steps.vars.outputs.short_hash }}-binary-files"
           path: |
             artifacts/*
 
@@ -89,8 +81,8 @@ jobs:
       #     custom-message-payload: ""
       #     filter-code: false
 
-  release-windows:
-    name: "release-windows"
+  build-windows:
+    name: "build-windows"
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -120,24 +112,16 @@ jobs:
           export CGO_ENABLED=1 GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"
           go build -ldflags="-H windowsgui -X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_i${GOARCH}.exe" .
 
-      - name: Build packages
-        run: |
-          mv onekeyd_windows_* release/windows/input_files/
-          cd release/windows/
-          chmod +x build.sh
-          ./build.sh
-          cd ../../
-
       - name: Move and zip artifacts
         run: |
           mkdir artifacts
-          mv release/windows/output/onekey-bridge-* artifacts/
+          mv onekeyd_* artifacts/
           # zip -rj artifacts.zip artifacts/*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ github.event.repository.name }}-${{ steps.vars.outputs.bridge_version }}-${{ steps.vars.outputs.build_date }}-${{ steps.vars.outputs.short_hash }}-release-packages"
+          name: "${{ github.event.repository.name }}-${{ steps.vars.outputs.bridge_version }}-${{ steps.vars.outputs.build_date }}-${{ steps.vars.outputs.short_hash }}-binary-files"
           path: |
             artifacts/*
 
@@ -157,8 +141,8 @@ jobs:
       #     custom-message-payload: ""
       #     filter-code: false
 
-  release-macos:
-    name: "release-macos"
+  build-macos:
+    name: "build-macos"
     runs-on: macos-latest
     steps:
       - name: Check out repository code
@@ -184,24 +168,16 @@ jobs:
           export CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CC=""
           go build -ldflags="-X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_${GOARCH}" .
 
-      - name: Build packages
-        run: |
-          cp onekeyd_darwin_* release/macos/input_files/
-          cd release/macos
-          chmod +x build.sh
-          ./build.sh
-          cd ../../
-
       - name: Move and zip artifacts
         run: |
           mkdir artifacts
-          mv release/macos/output/* artifacts/
+          mv onekeyd_* artifacts/
           # zip -rj artifacts.zip artifacts/*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ github.event.repository.name }}-${{ steps.vars.outputs.bridge_version }}-${{ steps.vars.outputs.build_date }}-${{ steps.vars.outputs.short_hash }}-release-packages"
+          name: "${{ github.event.repository.name }}-${{ steps.vars.outputs.bridge_version }}-${{ steps.vars.outputs.build_date }}-${{ steps.vars.outputs.short_hash }}-binary-files"
           path: |
             artifacts/*
 
