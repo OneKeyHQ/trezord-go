@@ -20,6 +20,9 @@ else
     mv onekeyd_darwin_amd64 onekeyd
     rm onekeyd_darwin_arm64
 fi
+# create log folder and set permissions
+mkdir Logs
+chmod 0777 Logs
 
 agent_file=/Library/LaunchAgents/so.onekey.bridge.onekeyd.plist
 

@@ -10,9 +10,13 @@
 
     <key>ProgramArguments</key>
     <array>
-      <string>sh</string>
-      <string>-c</string>
-      <string>/Applications/Utilities/OneKey\ Bridge/onekeyd -l $HOME/Library/Logs/onekeyd.log</string>
+      <string>/Applications/Utilities/OneKey Bridge/onekeyd</string>
+      <string>-l</string>
+      <string>/Applications/Utilities/OneKey Bridge/Logs/onekeyd.log</string>
     </array>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
   </dict>
 </plist>
