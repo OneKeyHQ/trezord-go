@@ -84,9 +84,9 @@ go build -ldflags="-H windowsgui -X 'main.version=$VERSION'" -v -o "onekeyd_${GO
 
 
 
-### Mac OS
+### MacOS
 
-**Note: following has to be done in Mac OS !!!**
+**Note: following has to be done in MacOS!!!**
 
 ```shell
 # install brew
@@ -112,5 +112,5 @@ go build -ldflags="-X 'main.version=$VERSION'" -v -o "onekeyd_${GOOS}_${GOARCH}"
 
 `release` folder contains packaging scripts, they all made to be used with the same work flow:
 1. Copy binaries `onekeyd_[OS]_*` into `release/[os]/input_files`
-2. `cd release/[os]/ && ./build.sh && cd..`
+2. `cd release/[os]/ && ./build.sh && cd../../`
 3. Get generated packages in `release/[os]/output`
