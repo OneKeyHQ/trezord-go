@@ -60,6 +60,8 @@ build_package() {
         --category "Productivity/Security" \
         --before-install ./fpm.before-install.sh \
         --after-install ./fpm.after-install.sh \
+        --before-upgrade ./fpm.before-remove.sh \
+        --after-upgrade ./fpm.after-install.sh \
         --before-remove ./fpm.before-remove.sh \
         --after-remove ./fpm.after-remove.sh \
         ./target/$type/$arch/onekey-bridge-$VERSION-$arch.tar.xz
