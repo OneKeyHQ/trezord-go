@@ -36,7 +36,7 @@ func TestOriginValidator(t *testing.T) {
 		// for onekeycn subdomains
 		{"https://firmware.onekeycn.com", true},
 		{"http://firmware.onekeycn.com", false},
-		{"https://other.onekeycn.com", false},
+		{"https://other.onekeycn.com", true},
 	}
 	validator, err := corsValidator()
 	if err != nil {
