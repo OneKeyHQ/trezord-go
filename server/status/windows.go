@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package status
@@ -184,9 +185,11 @@ func runDevcon(cmd, par string, mw *memorywriter.MemoryWriter, unicode bool) (st
 	if !unicode {
 		cmdInstance = exec.Command("devcon.exe", cmd, par) // nolint: gas
 	}
+	if errors.Is(cmdInstance.Err, exec.ErrDot) {
+		cmdInstance.Err = nil
+	}
 	cmdInstance.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	output, err := cmdInstance.Output()
-
 	if err != nil {
 		return "", err
 	}
